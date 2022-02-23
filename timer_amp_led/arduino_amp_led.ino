@@ -9,7 +9,6 @@ RtcDS1302<ThreeWire> Rtc(myWire);
 
 
 void setup() {
-  Serial.begin(9600);
   
   pinMode(rLUX, OUTPUT);
   pinMode(rAMP, OUTPUT);
@@ -21,16 +20,13 @@ void setup() {
   //RtcDateTime compiled = RtcDateTime(__DATE__, __TIME__);
 }
 
-int ora = 0;
-
-
 void loop() {
   
   RtcDateTime now = Rtc.GetDateTime();
-  //printDateTime(now);
 
-  //OGNI ORA SI ACCENDE SOLO IL SUONO - TRA LE 8.30 E LE 13.00
+  //TRA LE 8.30 E LE 13.00
   if ((now.Hour() >= 8) && (now.Hour() < 13)) {
+    //A .30 ACCENDI AMPLI PER 25 MIN
     if ((now.Minute() >= 30) && (now.Minute() < 55)) {
       digitalWrite(rAMP, HIGH);
     }
@@ -39,17 +35,18 @@ void loop() {
     }
   }
 
-  //DALLE 13.30 ALLE 16.30 OLTRE AL SUONO SI ACCENDE ANCHE LA LUCE
-  else if ((now.Hour() >= 13) && (now.Hour() < 16)) {
-
+  //DALLE 13.30 ALLE 17.00
+  else if ((now.Hour() >= 13) && (now.Hour() < 17)) {
   
-    if ((now.Minute() >= 30) && (now.Minute() < 59)) {
+    if ((now.Minute() >= 30) && (now.Minute() < 55)) {
+      //A .30 ACCENDI AMPLI PER 25 MIN
       digitalWrite(rAMP, HIGH);
 
+      //A .30 ACCENDI ACCENDI ANCHE LA LUCE
       switch(now.Hour()) {
         
         case 13:
-          if ((now.Minute() >= 30) && (now.Minute() < 40)) {
+          if (now.Minute() < 40) {
             digitalWrite(rLUX, HIGH);
           }
           else {
@@ -58,7 +55,7 @@ void loop() {
           break;
 
         case 14:
-          if ((now.Minute() >= 30) && (now.Minute() < 45)) {
+          if (now.Minute() < 45) {
             digitalWrite(rLUX, HIGH);
           }
           else {
@@ -67,7 +64,16 @@ void loop() {
           break;
 
         case   15:
-          if ((now.Minute() >= 30) && (now.Minute() < 50)) {
+          if (now.Minute() < 50) {
+            digitalWrite(rLUX, HIGH);
+          }  
+          else {
+            digitalWrite(rLUX, LOW);
+          }
+          break;
+
+        case   16:
+          if (now.Minute() < 52) {
             digitalWrite(rLUX, HIGH);
           }  
           else {
@@ -76,7 +82,7 @@ void loop() {
           break;
           
         default:
-        break;
+          break;
 
       }
       
@@ -86,43 +92,30 @@ void loop() {
     }
   }
 
-  //DALLE 16.30 ALLE 19.30 OLTRE AL SUONO SI ACCENDE ANCHE LA LUCE
-  else if ((now.Hour() >= 16) && (now.Hour() < 20)) {
+  //DALLE 16.00 ALLE 20.00
+  else if ((now.Hour() >= 17) && (now.Hour() < 20)) {
     
-    //OGNI 30 MIN PER 25 MIN
+    //OGNI 30 MIN PER 25 MIN ACCENDI AMP
     if (((now.Minute() >= 30) && (now.Minute() < 55)) || ((now.Minute() >= 0) && (now.Minute() < 25))) {
       digitalWrite(rAMP, HIGH);
-
-      switch(now.Hour()) {
-        
-        case 16:
-          if ((now.Minute() >= 30) && (now.Minute() < 52)) {
-            digitalWrite(rLUX, HIGH);
-          }
-          else {
-            digitalWrite(rLUX, LOW);
-          }
-          break;
-          
-        default:
-          digitalWrite(rLUX, HIGH);
-          break;
-
-      }
-      
     }    
     else {
       digitalWrite(rAMP, LOW);
     }
+
+    //LUCE SEMPRE ACCESA
+    digitalWrite(rLUX, HIGH);
     
   }
 
   else {
+    // FUORI DAGLI ORARI DI APERTURA DEL MUSEO
     digitalWrite(rAMP, LOW);
     digitalWrite(rLUX, LOW);
   }
-  
 
+  delay(1000);
+  
 }
 
 #define countof(a) (sizeof(a) / sizeof(a[0]))
